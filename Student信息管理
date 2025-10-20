@@ -1,0 +1,350 @@
+一、教学目标
+1. 理解结构体的定义与使用
+2. 掌握数组存储批量数据的方法
+3. 理解函数参数传递（引用）
+4. 实现添加、显示、修改、删除学生信息的功能
+5. 掌握文件读写操作
+6. 分步骤解决问题的思维训练
+二、教学过程
+（一）课程引入
+场景引入：假设你是班级的学习委员，老师让你负责记录全班同学的数学成绩——每次考完试要登记成绩、有同学成绩算错了要修改、有转学生要删除名字、期末整理成名单交给老师，并且记录本要长期保存，下次开学还能接着用
+
+老师想要记录班里同学们的姓名和成绩，用之前学过的变量怎么存？
+如果有10个同学，需要定义多少个变量？（单个变量存多个数据麻烦）—— 数组
+学生成绩单
+姓名
+成绩
+张三
+100
+李四
+99
+王五
+100
+表格能把每个同学的姓名和成绩打包成一列，C++中有没有类似于表格的工具？—— 结构体
+今天用结构体结合数组实现一个电子学生成绩单
+（二）需求分析：
+需求：从场景出发，把要做的事转换为系统要完成的功能。
+1. 数据存储需求：系统要存储学生姓名和学生成绩，且能存多个学生
+2. 日常操作需求：能够添加学生、修改已有学生的成绩、删除转走的学生、随时查看所有学生信息
+3. 数据安全需求：关闭系统后，之前的记录不会丢失；下次打开系统时，能恢复之前的信息
+整体需求表
+需求编号
+需求名称
+具体描述
+对应系统功能
+1
+查看学生
+ 显示所有已记录的学生姓名和成绩，清晰直观
+查看功能（显示学生信息）
+2
+增加学生
+手动输入新学生的姓名和成绩，添加到系统中
+增加功能（添加学生信息）
+3
+修改学生
+输入学生姓名，找到后修改其成绩，没找到时提示
+修改功能（修改学生成绩）
+4
+删除学生
+输入学生姓名，找到后从系统中删除，没找到时提示
+删除功能（删除学生信息）
+5
+保存数据
+将当前系统中的所有学生信息，存到电脑文件里
+保存功能（保存到 students.txt）
+6
+加载数据
+打开系统时，自动从电脑文件里读取之前保存的信息
+加载功能（从 students.txt 加载）
+（三）结构体与数组基础
+1. 结构体就像表头，定义了一组数据要包含哪些内容
+//定义“学生”结构体，包含姓名（string）和成绩(int）
+struct Student {    //定义一个名为Student的结构体
+    string name;    //对应表格的“姓名”
+    int score;    //对应表格的“成绩”
+};
+2. 数组存储结构体
+表格中不止一名学生的信息，数组能存储多个相同类型的数据，现在用结构体存多个学生的信息，就像表格里有很多行
+int main() {
+    //定义能存100个学生的数组（类比表格最多100行）
+    Student students[100];
+    //记录当前有多少个学生（初识为0个，因为还没有加人）
+    int count = 0;
+    return 0;
+}
+提问：student[1]代表什么？怎么访问第一个学生的姓名？（student[1].name）
+（四）功能实现1：显示学生信息
+1. 需求分析：电子名单做好了，怎么把里面的学生信息打印到屏幕上？——写一个专门的函数来完成这件事。
+2. 函数设计思路：
+思考：显示需要什么数据？（学生数组、学生数量）
+强调：显示不涉及修改，即不需要修改数组和数量，所以参数不用加引用。
+3. 分布编写代码
+  - 第一步：写函数实现
+//函数功能：显示所有学生信息
+//参数：students[] = 学生数组，count = 学生数量
+void displayStudents(Student students[], int count) {
+    //循环遍历每个学生（从第1个到第count个）
+    for (int i = 1; i <= count; i++) {
+        //打印第i个学生的姓名和成绩（用.访问结构体成员）
+        cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+    }
+}
+  Student students[]：形式参数为数组，类型是自定义的 Student 结构体（数组作为参数传递时，实际传递的是数组首地址）
+    在 C++ 中，当数组作为函数参数传递时（如代码中的Student students[]），编译器会自动将其转换为指向数组首元素的指针。也就是说：
+    - 函数参数Student students[]本质上等价于Student* students（指向Student类型的指针）。
+    - 此时函数内部接收到的并不是整个数组的副本，而是数组首元素的地址（指针）。
+    因此，代码中通过students[i]访问数组元素时，实际上是通过指针的偏移运算实现的：students[i] 等价于 *(students + i)，即通过指针students向后偏移i个Student类型的大小，再解引用获取对应元素。
+  - 第二步：在main中测试，先手动添加一个学生，再调用显示函数
+int main() {
+        Student students[100];
+        int count = 0;
+        
+        //手动添加一个学生（给数组第1行赋值）
+        students[1].name = "张三";
+        students[1].score = 100;
+        count = 1;        //学生数量变成1
+        
+        //调用显示函数
+        cout << "当前学生信息：" << endl;
+        displayStudents(students,count);
+         
+        return 0;
+}
+4. 学生实践：运行程序，观察是否显示“姓名：张三，成绩：100”；再手动添加李四 85，修改count为2，再运行验证
+（五）功能实现2：添加学生信息
+1. 需求分析：手动添加太麻烦，能不能让用户自己输入学生信息？我们写一个添加函数
+2. 函数设计思路：
+  - 思考：添加需要修改学生数量count，所以count参数要加引用(&)，否则函数里改了，main 里的 count 不变。
+3. 分布编写代码
+  - 第一步：写函数实现
+//函数功能：让用户输入学生信息并添加到数组
+//参数：students[] = 学生数组，&count = 学生数量（引用，可修改）
+void addStudents(Student students[], int &count) {
+        //创建临时学生变量（存用户输入的信息）
+        Student s;
+        cout << "请输入学生姓名：";
+        cin >> s.name;        //输入姓名
+        cout << "请输入学生成绩：";
+        cin >> s.score;        //输入成绩
+        
+        //count从0开始，先++，再把临时变量的信息存到数组的第count行
+        count++;
+        students[count] = s;
+}
+  - 第二步：在main里用菜单调用（结合do-while循环，让用户能反复添加）：
+int main() {
+    Student students[100];
+    int count = 0;
+    int choice;  // 存储用户选择（1=添加，2=显示，0=退出）
+
+    do {
+        // 打印菜单
+        cout << "\n===== 学生信息管理系统 =====" << endl;
+        cout << "1. 添加学生" << endl;
+        cout << "2. 显示学生" << endl;
+        cout << "0. 退出" << endl;
+        cout << "请选择操作（输入数字）：";
+        cin >> choice;
+
+        // 根据选择执行功能
+        switch (choice) {
+            case 1:
+                addStudents(students, count);
+                cout << "添加成功！" << endl;
+                break;
+            case 2:
+                cout << "\n当前学生信息：" << endl;
+                displayStudents(students, count);
+                break;
+            case 0:
+                cout << "退出程序！" << endl;
+                break;
+            default:
+                cout << "输入错误，请重新选择！" << endl;
+        }
+    } while (choice != 0);  // 选择 0 时退出循环
+
+    return 0;
+}
+4. 学生实践：让学生运行代码，选择“1”添加2-3个学生，再选择2显示，验证添加是否成功
+（六）功能实现3：修改学生信息
+如果添加的学生成绩输错了，怎么改？
+1. 需求分析：修改的核心是先找到人，再改成绩——先根据姓名在数组中找到对应学生，再让用户输入新的成绩覆盖原来的
+2. 函数设计思路：
+  - 需传入的参数：学生数组（要修改的数据）、学生数量（遍历范围）、目标学生姓名（查找条件）
+3. 分步编写代码
+  - 第一步：写函数实现
+// 功能：根据姓名修改学生成绩
+// 参数：students[]=学生数组，count=学生数量，targetName=要修改的学生姓名
+void modifyStudents(Student students[], int count, string targetName) {
+    bool found = false;  // 标记是否找到目标学生（默认没找到）
+    for (int i = 1; i <= count; i++) {
+        if (students[i].name == targetName) {  // 匹配姓名
+            cout << "找到学生：" << targetName << "，当前成绩：" << students[i].score << endl;
+            cout << "请输入新成绩：";
+            cin >> students[i].score;  // 覆盖旧成绩
+            found = true;  // 标记为找到
+            break;  // 找到后不用继续遍历，退出循环
+        }
+    }
+    if (!found) {  // 如果没找到
+        cout << "未找到姓名为 " << targetName << " 的学生！" << endl;
+    }
+}
+  - 第二步：在主函数菜单增加case3（修改功能入口）
+cout << "3. 修改学生" << endl; 
+
+//case 里定义变量时要加 {} 包裹
+case 3: {
+    string name;
+    cout << "请输入要修改成绩的学生姓名：";
+    cin >> name;
+    modifyStudents(students, count, name);
+    break;
+}
+4. 学生实践：
+  - 运行代码，先添加 1 个学生（如 “王五 75”），再选择 “3” 修改其成绩为 88，最后用 “2” 显示验证是否修改成功。
+  - 测试 “未找到学生” 场景：修改一个不存在的姓名（如 “赵六”），观察是否提示 “未找到”。
+（七）功能实现4：删除学生信息
+1. 需求分析：删除第 2 行后，第 3 行、第 4 行要依次往上移，覆盖被删除的行，最后名单总数量减 1。
+2. 函数设计思路：
+  - 需传入参数：学生数组（要删除数据）、学生数量（引用，需修改总数）、目标姓名（查找条件）
+3. 分步编写代码：
+  - 第一步：写函数实现
+// 功能：根据姓名删除学生
+// 参数：students[]=学生数组，&count=学生数量（引用，需减少），targetName=要删除的学生姓名
+void deleteStudents(Student students[], int &count, string targetName) {
+    bool found = false;
+    for (int i = 1; i <= count; i++) {
+        if (students[i].name == targetName) {  // 找到要删除的位置 i
+            // 内层循环：从 i+1 开始，后面的元素往前移 1 位
+            for (int j = i; j < count; j++) {
+                students[j] = students[j + 1];  // 第 j+1 个元素覆盖第 j 个
+            }
+            count--;  // 学生总数减 1（相当于“划掉最后一行”）
+            found = true;
+            cout << "成功删除学生：" << targetName << endl;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "未找到姓名为 " << targetName << " 的学生！" << endl;
+    }
+}
+  - 第二步：在主函数菜单中增加case4（删除功能入口）
+cout << "4. 删除学生" << endl; 
+
+case 4: {
+    string name;
+    cout << "请输入要删除的学生姓名：";
+    cin >> name;
+    deleteStudents(students, count, name);
+    break;
+}
+4. 学生实践：先添加 3 个学生（如 “张三 90”“李四 85”“王五 80”），显示确认后，删除 “李四”，再显示观察：“王五” 是否前移到原来 “李四” 的位置，总数是否从 3 变成 2。
+（八）功能实现5：文件操作
+（8-1）保存学生成绩到文件
+1. 需求分析：“把数组里的学生信息写到 students.txt 文件里，关闭程序后信息还在。”
+2. 分步编写代码
+  - 第一步：写函数实现
+#include<ofstream>
+
+// 功能：将学生信息保存到 students.txt 文件
+void saveStudents(Student students[], int count) {
+    ofstream file("students.txt");  // 创建输出文件流（写文件）
+    if (!file.is_open()) {  // 判断文件是否成功打开
+        cout << "文件打开失败，保存失败！" << endl;
+        return;
+    }
+    // 遍历数组，将每个学生信息写入文件（格式：姓名 成绩）
+    for (int i = 1; i <= count; i++) {
+        file << students[i].name << " " << students[i].score << endl;
+    }
+    file.close();  // 关闭文件（必须写，否则数据可能没保存）
+    cout << "学生信息已成功保存到 students.txt！" << endl;
+}
+  - 第二步：主函数菜单添加case 5（文件保存入口）
+cout << "5. 保存文件" << endl; 
+
+case 5:
+    saveStudents(students, count);
+    break;
+3. 学生实践：看是否能正常保存
+（8-2）从文件加载学生信息
+1. 需求分析：“程序启动时，自动从 students.txt 读取之前保存的信息，加载到数组里。”
+2. 分步编写代码
+  - 第一步：写函数实现
+// 功能：从 students.txt 文件加载学生信息到数组
+void loadStudents(Student students[], int &count) {
+    ifstream file("students.txt");  // 创建输入文件流（读文件）
+    if (!file.is_open()) {
+        cout << "未找到历史文件，将创建新名单！" << endl;
+        return;
+    }
+    Student s;
+    // 关键：用 file >> s.name >> s.score 作为循环条件，避免读取文件末尾空行
+    while (file >> s.name >> s.score) {
+            count++;
+        students[count] = s;  // 加载到数组，总数加 1
+    }
+    file.close();
+    cout << "成功加载 " << count << " 条学生信息！" << endl;
+}
+
+  - 第二步：主函数开头调用加载函数（程序启动时执行）
+int main() {
+    Student students[100];
+    int count = 0;
+    loadStudents(students, count); // 启动时加载历史数据
+    int choice;                    // 存储用户选择
+    ...
+}
+（九）拓展功能
+功能实现6：成绩单排序（从大到小）
+1. 需求分析：查看成绩单，能够自动实现从大到小排序
+2. 分步编写代码
+  - 第一步：写函数实现（可以使用sort排序）
+//功能：按成绩从高到低排序学生
+bool cmp(Student a, Student b) {
+        return a.score > b.score;
+}
+
+void sortStudents(Student students[], int count) {
+        if(count <= 1)
+                return ;
+        sort(students + 1, students + count + 1, cmp);
+} 
+  - 第二步：主函数调用
+cout << "6. 排序（从高到低）" << endl;
+
+case 6:
+    sortStudents(students, count);
+    cout << "已成功从大到小排序" << endl;
+    break;
+功能实现7：清空成绩单
+1. 需求分析：成绩单作废，全部信息清空
+2. 分步编写代码
+  - 第一步：写函数实现
+//功能：清空所有学生信息（需确定）
+void clearAllStudents(Student students[], int &count) {
+        if(count == 0) {
+                cout << "当前无学生信息，无需清空！" << endl;
+                return ;
+        }
+        char confirm;
+        cout << "确定要清空所有学生信息？（y/n）：";
+        cin >> confirm;
+        if(confirm == 'y' || confirm == 'Y') {
+                count = 0;        //直接重置计数（数组数据无需手动清空，后续会被覆盖）
+                cout << "已清空所有学生信息！" << endl; 
+        } else {
+                cout << "已取消清空操作！" << endl;
+        }
+} 
+  - 第二步：主函数调用
+cout << "7. 清空" << endl;
+
+case 7:
+    clearAllStudents(students, count);
+    break;
+  
