@@ -247,7 +247,7 @@ case 4: {
 1. 需求分析：“把数组里的学生信息写到 students.txt 文件里，关闭程序后信息还在。”
 2. 分步编写代码
   - 第一步：写函数实现
-#include<ofstream>
+#include <fstream>
 
 // 功能：将学生信息保存到 students.txt 文件
 void saveStudents(Student students[], int count) {
@@ -304,29 +304,82 @@ int main() {
 1. 需求分析：查看成绩单，能够自动实现从大到小排序
 2. 分步编写代码
   - 第一步：写函数实现（可以使用sort排序）
-//功能：按成绩从高到低排序学生
-bool cmp(Student a, Student b) {
-        return a.score > b.score;
+//功能：排序
+// 成绩从高到低排序
+bool cmpScoreDesc(Student a, Student b) {
+    return a.score > b.score;
+}
+// 成绩从低到高排序
+bool cmpScoreAsc(Student a, Student b) {
+    return a.score < b.score;
+}
+// 姓名升序（A-Z）
+bool cmpNameAsc(Student a, Student b) {
+    return a.name < b.name;
+}
+// 姓名降序（Z-A）
+bool cmpNameDesc(Student a, Student b) {
+    return a.name > b.name;
 }
 
 void sortStudents(Student students[], int count) {
-        if(count <= 1)
-                return ;
-        sort(students + 1, students + count + 1, cmp);
-} 
+    if (count <= 1) {
+        cout << "学生数量不足，无需排序！" << endl;
+        return;
+    }
+
+    int Type;
+    cout << "请选择排序类型：1-按成绩排序   2-按姓名排序" << endl;
+    cin >> Type;
+
+    switch (Type) {
+        case 1: // 按成绩排序
+            int T;
+            cout << "请选择成绩排序方式：1-从高到低   2-从低到高" << endl;
+            cin >> T;
+            if (T == 1) {
+                sort(students + 1, students + count + 1, cmpScoreDesc);
+                cout << "已按成绩从高到低排序完成！" << endl;
+            } else if (T == 2) {
+                sort(students + 1, students + count + 1, cmpScoreAsc);
+                cout << "已按成绩从低到高排序完成！" << endl;
+            } else {
+                cout << "成绩排序方式输入错误，排序取消！" << endl;
+            }
+            break;
+
+        case 2: // 按姓名排序
+            int T2;
+            cout << "请选择姓名排序方式：1-升序（A-Z）   2-降序（Z-A）" << endl;
+            cin >> T2;
+            if (T2 == 1) {
+                sort(students + 1, students + count + 1, cmpNameAsc);
+                cout << "已按姓名升序（A-Z）排序完成！" << endl;
+            } else if (T2 == 2) {
+                sort(students + 1, students + count + 1, cmpNameDesc);
+                cout << "已按姓名降序（Z-A）排序完成！" << endl;
+            } else {
+                cout << "姓名排序方式输入错误，排序取消！" << endl;
+            }
+            break;
+
+        default:
+            cout << "排序类型输入错误（仅支持1/2），排序取消！" << endl;
+            break;
+    }
+}
   - 第二步：主函数调用
-cout << "6. 排序（从高到低）" << endl;
+cout << "6. 排序" << endl;
 
 case 6:
     sortStudents(students, count);
-    cout << "已成功从大到小排序" << endl;
     break;
 功能实现7：清空成绩单
-1. 需求分析：成绩单作废，全部信息清空
+1. 需求分析：成绩单作废，全部信息清空，需要考虑成绩单是否有信息存在
 2. 分步编写代码
   - 第一步：写函数实现
 //功能：清空所有学生信息（需确定）
-void clearAllStudents(Student students[], int &count) {
+void clearAllStudents(int &count) {
         if(count == 0) {
                 cout << "当前无学生信息，无需清空！" << endl;
                 return ;
@@ -345,6 +398,620 @@ void clearAllStudents(Student students[], int &count) {
 cout << "7. 清空" << endl;
 
 case 7:
-    clearAllStudents(students, count);
+    clearAllStudents(count);
     break;
-  
+功能实现8：查询
+1. 需求分析：按姓名模糊查询（包含子串）或成绩精确查询或按成绩范围查询
+2. 分步实现代码
+  - 第一步：写函数实现
+//函数：查询 按姓名模糊查询（包含子串）或成绩精确查询或按成绩范围查询 
+void queryStudents(Student students[], int count){
+        int queryType;
+        cout << "请选择查询类型：1-姓名模糊查询   2-成绩精确查询   3-成绩范围查询" << endl; 
+        cin >> queryType;
+        
+        if(queryType == 1) {
+                string s;
+                cout << "请输入要查询的姓名包含的字符：";
+                cin >> s;
+                cout << "\n包含【" << s << "】的学生信息：" << endl; 
+                bool has = false;
+                for(int i = 1; i <= count; i++) {
+                        if(students[i].name.find(s) != string::npos) {
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true; 
+                        }
+                } 
+                if(has == 0) 
+                        cout << "未找到匹配学生" << endl; 
+        }
+        else if(queryType == 2) {
+                int s;
+                cout << "请输入要查询的成绩：";
+                cin >> s;
+                cout << "\n成绩为【" << s << "】的学生信息：" << endl; 
+                bool has = false;
+                for(int i = 1; i <= count; i++) {
+                        if(students[i].score == s){
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true;
+                        }
+                } 
+                if(has == 0)
+                        cout << "未找到匹配学生" << endl;
+        }
+        else if(queryType == 3) {
+                int minS, maxS;
+                cout << "请输入查询的最低分：";
+                cin >> minS;
+                cout << "请输入查询的最高分：";
+                cin >> maxS;
+                
+                cout << "\n成绩在" << minS << "~" << maxS << " 之间的学生" << endl;
+                bool has = false;
+                for (int i = 1; i <= count; i++) {
+                        if(students[i].score >= minS && students[i].score <= maxS) {
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true;
+                        }
+                }
+                if(has == false) {
+                        cout << "该分数范围内无学生！" << endl; 
+                }
+        }
+} 
+  - 第二步：主函数内调用
+cout << "8. 查询" << endl;
+
+case 8:
+    queryStudents(students, count);
+    break; 
+功能实现9：成绩统计
+1. 需求分析：统计学生的平均分（保留一位小数）、最高分、最低分
+2. 分步编写代码
+  - 第一步：写函数实现
+//函数功能：统计学生成绩的平均分、最高分、最低分
+void statsStudents(Student students[], int count){
+        if(count == 0) {
+                cout << "暂无学生信息，无法统计！" << endl;
+                return ;
+        }
+        int sum = 0, maxS = students[1].score, minS = students[1].score;
+        for(int i = 1; i <= count; i++) {
+                sum += students[i].score;
+                if (students[i].score > maxS) 
+                        maxS = students[i].score;
+        if (students[i].score < minS) 
+                        minS = students[i].score;
+        }
+        double avg = (double)sum / count; // 平均分（保留1位小数）
+    cout << "\n成绩统计：" << endl;
+    cout << "平均分：" << fixed << setprecision(1) << avg << endl;
+    cout << "最高分：" << maxS << endl;
+    cout << "最低分：" << minS << endl;
+} 
+  - 第二步：主函数调用
+cout << "9. 成绩统计" << endl;
+
+case 9:
+    statsStudents(students, count);
+    break;
+功能实现10：登录
+函数实现：
+//函数功能：登录
+bool loginStudents() {
+        string password;
+        cout << "请输入管理员密码：";
+        cin >> password;
+        if(password == "admin") {
+                cout << "登录成功" << endl;
+                return true; 
+        }
+        else {
+                cout << "密码错误，无法操作" << endl;
+                return false; 
+        }
+} 
+
+主函数调用
+if(loginStudents()==true) {
+          loadStudents(students, count); // 启动时加载历史数据
+          
+          int choice; //用户选择（1=添加，2=显示，0=退出）
+                        
+          do{
+                  cout << "===== 学生信息管理系统======\n";
+                  cout << "1. 添加学生" << endl;
+                  cout << "2. 查看学生" <<endl;
+                  cout << "3. 修改学生" << endl; 
+                  ......
+功能实现11：批量增加学生
+函数实现
+//函数功能：批量添加学生（一次输入多个）
+void batchStudents(Student students[], int &count) {
+        int num;
+        cout << "请输入要批量添加的学生数量：";
+        cin >> num;
+        if(num <= 0 || count + num > 100) {
+                cout << "输入无效或超出最大容量（100人）！" << endl;
+                return ;
+        }
+        for(int i = 1; i <= num; i++) {
+                Student s;
+                cout << "请输入第" << i << "个学生姓名：";
+                cin >> s.name;
+                cout << "请输入第" << i << "个学生成绩：";
+                cin >> s.score;
+                if(s.score < 0 || s.score > 100) {
+                        cout << "成绩必须在0~100之间，该学生添加失败！" << endl;
+                        continue;
+                } 
+                count++;
+                students[count] = s;
+        }
+        cout << "批量添加完成！当前共" << count << "名学生。" << endl;
+} 
+主函数
+cout << "10. 批量添加学生" << endl;
+
+case 10:
+    batchStudents(students, count);
+    break;
+功能实现12：成绩格式化（等级）
+函数实现：
+//功能：成绩格式化函数
+void printStudents(Student students[], int count) {
+        if(count == 0) {
+            cout << "无学生信息，无法输出！" << endl;
+        return;
+        }
+        cout << "\n学生成绩格式化列表：" << endl;
+        for (int i = 1; i <= count; i++) {
+                string level, desc;
+            // 按分数划分等级与描述
+            if (students[i].score >= 90 && students[i].score <= 100) {
+                level = "A";
+                desc = "优秀";
+            } else if (students[i].score >= 80 && students[i].score < 90) {
+                level = "B";
+                desc = "良好";
+            } else if (students[i].score >= 70 && students[i].score < 80) {
+                level = "C";
+                desc = "中等";
+            } else if (students[i].score >= 60 && students[i].score < 70) {
+                level = "D";
+                desc = "及格";
+            } else {
+                level = "E";
+                desc = "不及格";
+            }
+            // 字符串拼接
+            string result = to_string(students[i].score) + "分→" + level + "等级（" + desc + "）";
+            cout << "[" << i << "] 姓名：" << students[i].name << "，成绩：" << result << endl;
+        }
+}
+cout << "11. 成绩格式化输出" << endl;
+
+case 11:
+    printStudents(students, count);
+    break;
+三、整体系统概览
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <bits/stdc++.h>
+using namespace std;
+//搭建学生成绩表  一个学生：姓名+成绩
+//定义学生结构体，包含姓名和成绩
+struct Student {
+        string name;        //对应表格中姓名
+        int score;        //对应表格的成绩 
+}; 
+//函数功能：显示所有学生姓名和成绩
+//参数：students[] = 学生数组、count = 学生信息数量
+void displayStudents(Student students[], int count){
+        //循环遍历每个学生（从第1个到第count个）
+        for(int i = 1; i <= count; i++) {
+                //输出第i个同学的姓名和成绩
+                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl; 
+        } 
+}
+
+//函数功能：增加学生
+//参数： students[] = 学生数组、count = 学生信息数量
+void addStudents(Student students[], int &count){
+        //临时学生变量（存用户输入的信息） 
+        Student s;        
+        cout << "请输入学生姓名：" << endl;
+        cin >> s.name;
+        cout << "请输入学生成绩：" << endl;
+        cin >> s.score; 
+        count++;
+        students[count] = s;
+} 
+
+// 功能：根据姓名修改学生成绩
+// 参数：students[]=学生数组，count=学生数量，targetName=要修改的学生姓名
+void modifyStudent(Student students[], int count, string targetName) {
+    bool found = false;  // 标记是否找到目标学生（默认没找到）
+    for (int i = 1; i <= count; i++) {
+        if (students[i].name == targetName) {  // 匹配姓名
+            cout << "找到学生：" << targetName << "，当前成绩：" << students[i].score << endl;
+            cout << "请输入新成绩：";
+            cin >> students[i].score;  // 覆盖旧成绩
+            found = true;  // 标记为找到
+            break;  // 找到后不用继续遍历，退出循环
+        }
+    }
+    if (!found) {  // 如果没找到
+        cout << "未找到姓名为 " << targetName << " 的学生！" << endl;
+    }
+}
+
+// 功能：根据姓名删除学生
+// 参数：students[]=学生数组，&count=学生数量（引用，需减少），targetName=要删除的学生姓名
+void deleteStudent(Student students[], int &count, string targetName) {
+    bool found = false;
+    for (int i = 1; i <= count; i++) {
+        if (students[i].name == targetName) {  // 找到要删除的位置 i
+            // 内层循环：从 i+1 开始，后面的元素往前移 1 位
+            for (int j = i; j < count; j++) {
+                students[j] = students[j + 1];  // 第 j+1 个元素覆盖第 j 个
+            }
+            count--;  // 学生总数减 1（相当于“划掉最后一行”）
+            found = true;
+            cout << "成功删除学生：" << targetName << endl;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "未找到姓名为 " << targetName << " 的学生！" << endl;
+    }
+}
+
+// 功能：将学生信息保存到 students.txt 文件
+void saveStudents(Student students[], int count) {
+    ofstream file("students.txt");  // 创建输出文件流（写文件）
+    if (!file.is_open()) {  // 判断文件是否成功打开
+        cout << "文件打开失败，保存失败！" << endl;
+        return;
+    }
+    // 遍历数组，将每个学生信息写入文件（格式：姓名 成绩）
+    for (int i = 1; i <= count; i++) {
+        file << students[i].name << " " << students[i].score << endl;
+    }
+    file.close();  // 关闭文件（必须写，否则数据可能没保存）
+    cout << "学生信息已成功保存到 students.txt！" << endl;
+}
+
+// 功能：从 students.txt 文件加载学生信息到数组
+void loadStudents(Student students[], int &count) {
+    ifstream file("students.txt");  // 创建输入文件流（读文件）
+    if (!file.is_open()) {
+        cout << "未找到历史文件，将创建新名单！" << endl;
+        return;
+    }
+    Student s;
+    // 关键：用 file >> s.name >> s.score 作为循环条件，避免读取文件末尾空行
+    while (file >> s.name >> s.score) {
+            count++;
+        students[count] = s;  // 加载到数组，总数加 1
+    }
+    file.close();
+    cout << "成功加载 " << count << " 条学生信息！" << endl;
+}
+
+//功能：排序
+// 成绩从高到低排序
+bool cmpScoreDesc(Student a, Student b) {
+    return a.score > b.score;
+}
+// 成绩从低到高排序
+bool cmpScoreAsc(Student a, Student b) {
+    return a.score < b.score;
+}
+// 姓名升序（A-Z）
+bool cmpNameAsc(Student a, Student b) {
+    return a.name < b.name;
+}
+// 姓名降序（Z-A）
+bool cmpNameDesc(Student a, Student b) {
+    return a.name > b.name;
+}
+
+void sortStudents(Student students[], int count) {
+    if (count <= 1) {
+        cout << "学生数量不足，无需排序！" << endl;
+        return;
+    }
+
+    int Type;
+    cout << "请选择排序类型：1-按成绩排序   2-按姓名排序" << endl;
+    cin >> Type;
+
+    switch (Type) {
+        case 1: // 按成绩排序
+            int T;
+            cout << "请选择成绩排序方式：1-从高到低   2-从低到高" << endl;
+            cin >> T;
+            if (T == 1) {
+                sort(students + 1, students + count + 1, cmpScoreDesc);
+                cout << "已按成绩从高到低排序完成！" << endl;
+            } else if (T == 2) {
+                sort(students + 1, students + count + 1, cmpScoreAsc);
+                cout << "已按成绩从低到高排序完成！" << endl;
+            } else {
+                cout << "成绩排序方式输入错误，排序取消！" << endl;
+            }
+            break;
+
+        case 2: // 按姓名排序
+            int T2;
+            cout << "请选择姓名排序方式：1-升序（A-Z）   2-降序（Z-A）" << endl;
+            cin >> T2;
+            if (T2 == 1) {
+                sort(students + 1, students + count + 1, cmpNameAsc);
+                cout << "已按姓名升序（A-Z）排序完成！" << endl;
+            } else if (T2 == 2) {
+                sort(students + 1, students + count + 1, cmpNameDesc);
+                cout << "已按姓名降序（Z-A）排序完成！" << endl;
+            } else {
+                cout << "姓名排序方式输入错误，排序取消！" << endl;
+            }
+            break;
+
+        default:
+            cout << "排序类型输入错误（仅支持1/2），排序取消！" << endl;
+            break;
+    }
+}
+
+//功能：清空所有学生信息（需确定）
+void clearAllStudents(int &count) {
+        if(count == 0) {
+                cout << "当前无学生信息，无需清空！" << endl;
+                return ;
+        }
+        char confirm;
+        cout << "确定要清空所有学生信息？（y/n）：";
+        cin >> confirm;
+        if(confirm == 'y' || confirm == 'Y') {
+                count = 0;        //直接重置计数（数组数据无需手动清空，后续会被覆盖）
+                cout << "已清空所有学生信息！" << endl; 
+        } else {
+                cout << "已取消清空操作！" << endl;
+        }
+} 
+
+//函数：查询 按姓名模糊查询（包含子串）或成绩精确查询或按成绩范围查询 
+void queryStudents(Student students[], int count){
+        int queryType;
+        cout << "请选择查询类型：1-姓名模糊查询   2-成绩精确查询   3-成绩范围查询" << endl; 
+        cin >> queryType;
+        
+        if(queryType == 1) {
+                string s;
+                cout << "请输入要查询的姓名包含的字符：";
+                cin >> s;
+                cout << "\n包含【" << s << "】的学生信息：" << endl; 
+                bool has = false;
+                for(int i = 1; i <= count; i++) {
+                        if(students[i].name.find(s) != string::npos) {
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true; 
+                        }
+                } 
+                if(has == 0) 
+                        cout << "未找到匹配学生" << endl; 
+        }
+        else if(queryType == 2) {
+                int s;
+                cout << "请输入要查询的成绩：";
+                cin >> s;
+                cout << "\n成绩为【" << s << "】的学生信息：" << endl; 
+                bool has = false;
+                for(int i = 1; i <= count; i++) {
+                        if(students[i].score == s){
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true;
+                        }
+                } 
+                if(has == 0)
+                        cout << "未找到匹配学生" << endl;
+        }
+        else if(queryType == 3) {
+                int minS, maxS;
+                cout << "请输入查询的最低分：";
+                cin >> minS;
+                cout << "请输入查询的最高分：";
+                cin >> maxS;
+                
+                cout << "\n成绩在" << minS << "~" << maxS << " 之间的学生" << endl;
+                bool has = false;
+                for (int i = 1; i <= count; i++) {
+                        if(students[i].score >= minS && students[i].score <= maxS) {
+                                cout << "姓名：" << students[i].name << "，成绩：" << students[i].score << endl;
+                                has = true;
+                        }
+                }
+                if(has == false) {
+                        cout << "该分数范围内无学生！" << endl; 
+                }
+        }
+} 
+
+//函数功能：统计学生成绩的平均分、最高分、最低分
+void statsStudents(Student students[], int count){
+        if(count == 0) {
+                cout << "暂无学生信息，无法统计！" << endl;
+                return ;
+        }
+        int sum = 0, maxS = students[1].score, minS = students[1].score;
+        for(int i = 1; i <= count; i++) {
+                sum += students[i].score;
+                if (students[i].score > maxS) 
+                        maxS = students[i].score;
+        if (students[i].score < minS) 
+                        minS = students[i].score;
+        }
+        double avg = (double)sum / count; // 平均分（保留1位小数）
+    cout << "\n成绩统计：" << endl;
+    cout << "平均分：" << fixed << setprecision(1) << avg << endl;
+    cout << "最高分：" << maxS << endl;
+    cout << "最低分：" << minS << endl;
+} 
+
+//函数功能：批量添加学生（一次输入多个）
+void batchStudents(Student students[], int &count) {
+        int num;
+        cout << "请输入要批量添加的学生数量：";
+        cin >> num;
+        if(num <= 0 || count + num > 100) {
+                cout << "输入无效或超出最大容量（100人）！" << endl;
+                return ;
+        }
+        for(int i = 1; i <= num; i++) {
+                Student s;
+                cout << "请输入第" << i << "个学生姓名：";
+                cin >> s.name;
+                cout << "请输入第" << i << "个学生成绩：";
+                cin >> s.score;
+                if(s.score < 0 || s.score > 100) {
+                        cout << "成绩必须在0~100之间，该学生添加失败！" << endl;
+                        continue;
+                } 
+                count++;
+                students[count] = s;
+        }
+        cout << "批量添加完成！当前共" << count << "名学生。" << endl;
+} 
+
+//函数功能：登录
+bool loginStudents() {
+        string password;
+        cout << "请输入管理员密码：";
+        cin >> password;
+        if(password == "admin") {
+                cout << "登录成功！" << endl;
+                return true; 
+        }
+        else {
+                cout << "密码错误，无法操作！" << endl;
+                return false; 
+        }
+} 
+
+//功能：成绩格式化函数
+void printStudents(Student students[], int count) {
+        if(count == 0) {
+            cout << "无学生信息，无法输出！" << endl;
+        return;
+        }
+        cout << "\n学生成绩格式化列表：" << endl;
+        for (int i = 1; i <= count; i++) {
+                string level, desc;
+            // 按分数划分等级与描述
+            if (students[i].score >= 90 && students[i].score <= 100) {
+                level = "A";
+                desc = "优秀";
+            } else if (students[i].score >= 80 && students[i].score < 90) {
+                level = "B";
+                desc = "良好";
+            } else if (students[i].score >= 70 && students[i].score < 80) {
+                level = "C";
+                desc = "中等";
+            } else if (students[i].score >= 60 && students[i].score < 70) {
+                level = "D";
+                desc = "及格";
+            } else {
+                level = "E";
+                desc = "不及格";
+            }
+            // 字符串拼接
+            string result = to_string(students[i].score) + "分→" + level + "等级（" + desc + "）";
+            cout << "[" << i << "] 姓名：" << students[i].name << "，成绩：" << result << endl;
+        }
+}
+
+int main() {
+        //定义能存100个学生的数组（类比表格里有100行）
+        Student students[100];
+        //记录当前有多少个学生（初识有0人）
+        int count = 0; 
+        
+        if(loginStudents()==true) {
+                loadStudents(students, count); // 启动时加载历史数据
+                
+                int choice; //用户选择（1=添加，2=显示，0=退出）
+                
+                do{
+                        cout << "===== 学生信息管理系统======\n";
+                        cout << "1. 添加学生" << endl;
+                        cout << "2. 查看学生" <<endl;
+                        cout << "3. 修改学生" << endl; 
+                        cout << "4. 删除学生" << endl; 
+                        cout << "5. 保存文件" << endl; 
+                        cout << "6. 排序" << endl;
+                        cout << "7. 清空" << endl;
+                        cout << "8. 查询" << endl;
+                        cout << "9. 成绩统计" << endl;
+                        cout << "10. 批量添加学生" << endl;
+                        cout << "11. 成绩格式化输出" << endl;
+                        cout << "0. 退出" << endl;
+                        cout << "请选择操作（输入数字）：" << endl;
+                        cin >> choice;
+                        
+                        switch(choice) {
+                                case 1:
+                                        addStudents(students,count);
+                                        cout << "添加成功！" << endl;
+                                        break;
+                                case 2:
+                                        cout << "\n当前学生信息" << endl;
+                                        displayStudents(students, count);
+                                        break;
+                                case 3: {
+                                    string name;
+                                    cout << "请输入要修改成绩的学生姓名：";
+                                    cin >> name;
+                                    modifyStudent(students, count, name);
+                                    break;
+                                }
+                                case 4: {
+                                    string name;
+                                    cout << "请输入要删除的学生姓名：";
+                                    cin >> name;
+                                    deleteStudent(students, count, name);
+                                    break;
+                                }
+                                case 5:
+                                    saveStudents(students, count);
+                                    break;
+                                case 6:
+                                        sortStudents(students,count);
+                                        break;
+                                case 7:
+                                        clearAllStudents(count);
+                                        break;
+                                case 8:
+                                        queryStudents(students, count);
+                                        break; 
+                                case 9:
+                                        statsStudents(students, count);
+                                        break;
+                                case 10:
+                                        batchStudents(students, count);
+                                        break;
+                                case 11:
+                                        printStudents(students, count);
+                                    break;
+                                case 0:
+                                        cout << "退出程序！" << endl;
+                                        break;
+                                default:
+                                        cout << "输入错误，请重新选择！" << endl;
+                        } 
+                } while(choice!=0);
+        }
+    return 0;
+}
